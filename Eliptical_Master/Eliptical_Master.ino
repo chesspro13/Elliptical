@@ -32,11 +32,12 @@ bool btn1;
 bool btn2;
 bool lastBtn1;
 bool lastBtn2;
-bool ledON = true;
 
+  // Debugging thing
 int dipDebug = 3;
 bool debug;
 
+  // Oled strings
 String line1;
 String line2;
 
@@ -48,7 +49,10 @@ char appData;
 String inData = "";
 int target = 3;
 
+  // Speed data
 float curSpeed;
+
+
 
 void setup() {
 
@@ -80,6 +84,7 @@ void setup() {
   pinMode( dipDebug, INPUT );
 }
 
+  // Send data to Oled display
 void overOled(String str, int line)
 {
   if( line ==1)
@@ -100,7 +105,7 @@ void overOled(String str, int line)
   display.display();
 }
 
-  // Send data over I2C
+  // Send data over I2C to sensor arduino
 void overI2C(String toSend)
 {
   // Add extra letter to be left out from the data
@@ -202,45 +207,31 @@ void loop() {
 void upAction()
 {
   debug = false;//digitalRead(dipDebug);
-  String resp;
   
   if( target + 1 < 10  )
     target++;
 
-  if( debug )
-  {
-    overI2C("up");
-    overI2C("pos");
-    resp = request();
-    Serial.println("Dubugging");
-    Serial.println("Response from sensor: [" + resp + "]");
-    overOled("D::Level: " + String(target+1),1);
-  }
-  else
-  {
-    overI2C("pos");
-    resp = request();
-    Serial.println("Response from sensor: [" + resp + "]");
-    delay(100);
-    overI2C("target[" + String(target) + "]");
-    overOled("Level: " + String(target+1),1);
-  }
-  
-  Serial.println("New Target: " + String(target));
-  HM10.print("level:" + String(target));
+  direction("up");
 }
 
 void downAction()
-{
-  
+{ 
   debug = false;//digitalRead(dipDebug);
-  String resp;
+
   if( target - 1 >= 0 )
     target--;
   
+  direction("down");
+}
+
+
+void direction(String dir)
+{
+  String resp;
+
   if( debug )
   {
-    overI2C("down");
+    overI2C(dir);
     overI2C("pos");
     resp = request();
     Serial.println("Dubugging");
@@ -256,6 +247,7 @@ void downAction()
     overI2C("target[" + String(target) + "]");
     overOled("Level: " + String(target+1),1);
   }
+
   Serial.println("New Target: " + String(target));
   HM10.print("level:" + String(target));
 }
